@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Catatan Keuangan - Abdullah Sami</title>
+    <!-- Menggunakan Font Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            padding: 40px 20px; 
+            background: #f0f4f8; 
+            color: #333; 
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        h2 { font-weight: 600; color: #1e293b; margin-bottom: 20px; }
+
+        /* Kartu Saldo Modern dengan Transisi Warna Halus */
+        .card-saldo { 
+            background: linear-gradient(135deg, #0284c7, #0369a1); 
+            color: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.3); 
+            margin-bottom: 30px; 
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+            transition: background 1s ease, transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .card-saldo:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(2, 132, 199, 0.4);
+        }
+        .card-saldo::after {
+            content: '';
+            position: absolute;
+            right: -30px;
+            bottom: -30px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        .card-saldo h4 { margin: 0 0 8px 0; font-weight: 400; font-size: 14px; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
+        .card-saldo h1 { margin: 0; font-size: 38px; font-weight: 700; letter-spacing: 0.5px; }
+
+        /* Kelas Status Warna untuk Transisi Halus */
+        .card-saldo.state-green {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        }
+        .card-saldo.state-red {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Kotak Form dengan Efek Super Interaktif */
+        .form-box { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
+            margin-bottom: 30px; 
+            border: 1px solid rgba(2, 132, 199, 0.1);
+        }
+        .form-box h3 { margin-top: 0; color: #1e293b; font-size: 18px; margin-bottom: 20px; }
+        
+        .input-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 13px; color: #475569; }
+        
+        input, select { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 10px; 
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            background: #f8fafc;
+            color: #1e293b;
+            transition: all 0.25s ease;
+        }
+
+        input:hover, select:hover { 
+            border-color: #cbd5e1;
+            background: #fff;
+        }
+        
+        input:focus, select:focus { 
+            outline: none; 
+            border-color: #0284c7; 
+            background: white; 
+            box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15); 
+            transform: scale(1.01);
+        }
+
+        /* Tombol Utama dengan Efek Interaktif */
+        button { 
+            background: linear-gradient(135deg, #0284c7, #0369a1); 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: 600; 
+            border-radius: 10px; 
+            padding: 14px 20px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+            transition: all 0.25s ease;
+        }
+        button:hover { 
+            opacity: 0.95; 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(2, 132, 199, 0.35);
+        }
+        button:active { transform: translateY(0); }
+        
+        button.danger { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
+        button.danger:hover { box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35); }
+
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        
+        /* Tombol Toggle Collapse */
+        .toggle-btn { 
+            background: #e2e8f0; 
+            color: #475569; 
+            width: auto; 
+            padding: 8px 16px; 
+            font-size: 13px; 
+            border-radius: 8px; 
+            box-shadow: none;
+            transition: all 0.25s ease;
+        }
+        .toggle-btn:hover { background: #cbd5e1; color: #1e293b; transform: translateY(-1px); }
+
+        /* Tabel Modern */
+        .table-container { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 16px 20px; font-size: 14px; }
+        th { background-color: #f8fafc; color: #475569; font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; }
+        tr:not(:last-child) td { border-bottom: 1px solid #f1f5f9; }
+        tr:hover { background-color: #f8fafc; }
+
+        /* Badge Tipe Transaksi */
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .badge.pemasukan { background: #dcfce7; color: #15803d; }
+        .badge.pengeluaran { background: #fee2e2; color: #b91c1c; }
+
+        .action-btns { display: flex; gap: 8px; align-items: center; }
+        .btn-edit { background: #f59e0b; color: white; padding: 6px 14px; font-size: 12px; width: auto; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: 600; box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2); transition: all 0.25s ease; }
+        .btn-edit:hover { background: #d97706; transform: translateY(-1px); }
+        .btn-delete { padding: 6px 14px; font-size: 12px; width: auto; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Pencatatan Keuangan Abdullah Sami</h2>
+
+        <!-- Kartu Saldo Real-time dengan Transisi Warna Halus & Angka Dinamis -->
+        <div class="card-saldo" id="cardSaldo" onmouseenter="playSound('hover')">
+            <h4>Saldo Aktif Anda</h4>
+            <h1 id="saldoDisplay">Rp 0</h1>
+        </div>
+
+        <!-- Form Tambah Transaksi -->
+        <div class="form-box">
+            <h3>Tambah Transaksi Baru</h3>
+            <form action="/add" method="POST" onsubmit="playSound('success')">
+                <div class="input-group">
+                    <label>Kategori:</label>
+                    <select name="category_id" required onfocus="playSound('click')" onchange="playSound('pop')">
+                        <% categories.forEach(cat => { %>
+                            <option value="<%= cat.id %>"><%= cat.name %> (<%= cat.type %>)</option>
+                        <% }) %>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label>Nominal (Rp):</label>
+                    <input type="number" step="0.01" name="amount" placeholder="Contoh: 50000" required onfocus="playSound('click')">
+                </div>
+                
+                <div class="input-group">
+                    <label>Tanggal:</label>
+                    <input type="date" name="transaction_date" required onfocus="playSound('click')">
+                </div>
+                
+                <div class="input-group">
+                    <label>Keterangan:</label>
+                    <input type="text" name="description" placeholder="Catatan tambahan (opsional)" onfocus="playSound('click')">
+                </div>
+                
+                <button type="submit" onmouseenter="playSound('hover')">Simpan Transaksi</button>
+            </form>
+        </div>
+
+        <!-- Bagian Daftar Transaksi dengan Tombol Collapse -->
+        <div class="section-header">
+            <h3>Mutasi Keuangan</h3>
+            <button type="button" class="toggle-btn" id="toggleTableBtn" onclick="toggleTable(); playSound('click');">Sembunyikan Tabel</button>
+        </div>
+
+        <div id="tableContainer" class="table-container">
+            <table>
+                <tr>
+                    <th>No</th>
+                    <th>Tanggal</th>
+                    <th>Kategori</th>
+                    <th>Tipe</th>
+                    <th>Nominal</th>
+                    <th>Keterangan</th>
+                    <th>Aksi</th>
+                </tr>
+                <% if (transactions.length === 0) { %>
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 30px; color: #94a3b8;">Belum ada data transaksi.</td>
+                    </tr>
+                <% } else { %>
+                    <% transactions.forEach((t, index) => { %>
+                    <tr>
+                        <td><%= index + 1 %></td>
+                        <td>
+                            <% 
+                                const d = new Date(t.transaction_date);
+                                const formattedDate = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                            %>
+                            <%= formattedDate %>
+                        </td>
+                        <td><%= t.category_name %></td>
+                        <td>
+                            <% if (t.type === 'Pemasukan') { %>
+                                <span class="badge pemasukan"><%= t.type %></span>
+                            <% } else { %>
+                                <span class="badge pengeluaran"><%= t.type %></span>
+                            <% } %>
+                        </td>
+                        <td style="font-weight: 600;">
+                            <% if (t.type === 'Pemasukan') { %>
+                                <span style="color: #15803d;">+ Rp <%= Number(t.amount).toLocaleString('id-ID') %></span>
+                            <% } else { %>
+                                <span style="color: #b91c1c;">- Rp <%= Number(t.amount).toLocaleString('id-ID') %></span>
+                            <% } %>
+                        </td>
+                        <td><%= t.description || '-' %></td>
+                        <td>
+                            <div class="action-btns">
+                                <a href="/edit/<%= t.id %>" class="btn-edit" onmouseenter="playSound('hover')">Edit</a>
+                                <form action="/delete/<%= t.id %>" method="POST" onsubmit="return confirm('Yakin ingin menghapus transaksi ini?')" style="margin: 0;">
+                                    <button type="submit" class="danger btn-delete" onmouseenter="playSound('hover')">Hapus</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <% }) %>
+                <% } %>
+            </table>
+        </div>
+    </div>
+
+    <!-- Script JavaScript untuk Animasi Saldo Berjalan & Transisi Warna Kartu -->
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            let freq = 400;
+            let duration = 0.05;
+
+            if (type === 'click') { freq = 600; duration = 0.04; }
+            else if (type === 'pop') { freq = 800; duration = 0.06; }
+            else if (type === 'hover') { freq = 300; duration = 0.03; }
+            else if (type === 'success') { freq = 900; duration = 0.12; }
+
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        const targetSaldo = Number('<%= totalSaldo %>');
+        const saldoDisplay = document.getElementById('saldoDisplay');
+        const cardSaldo = document.getElementById('cardSaldo');
+
+        let previousSaldo = localStorage.getItem('lastSaldo');
+        if (previousSaldo === null) {
+            previousSaldo = targetSaldo; 
+        } else {
+            previousSaldo = Number(previousSaldo);
+        }
+
+        if (targetSaldo > previousSaldo) {
+            cardSaldo.classList.add('state-green');
+            setTimeout(() => { cardSaldo.classList.remove('state-green'); }, 2000);
+        } else if (targetSaldo < previousSaldo) {
+            cardSaldo.classList.add('state-red');
+            setTimeout(() => { cardSaldo.classList.remove('state-red'); }, 2000);
+        }
+
+        let currentSaldo = previousSaldo;
+        const duration = 1200;
+        const steps = 50;
+        const diff = targetSaldo - previousSaldo;
+        const increment = diff / steps;
+        let stepCount = 0;
+
+        if (diff === 0) {
+            saldoDisplay.innerText = 'Rp ' + Math.round(targetSaldo).toLocaleString('id-ID');
+        } else {
+            const counterInterval = setInterval(() => {
+                stepCount++;
+                currentSaldo += increment;
+                if (stepCount >= steps) {
+                    currentSaldo = targetSaldo;
+                    clearInterval(counterInterval);
+                }
+                saldoDisplay.innerText = 'Rp ' + Math.round(currentSaldo).toLocaleString('id-ID');
+            }, duration / steps);
+        }
+
+        localStorage.setItem('lastSaldo', targetSaldo);
+
+        function toggleTable() {
+            const container = document.getElementById('tableContainer');
+            const btn = document.getElementById('toggleTableBtn');
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                btn.innerText = 'Sembunyikan Tabel';
+            } else {
+                container.style.display = 'none';
+                btn.innerText = 'Tampilkan Tabel';
+            }
+        }
+    </script>   
+</body>
+</html>
